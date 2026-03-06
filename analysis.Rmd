@@ -1,0 +1,116 @@
+---
+title: "Project 2"
+author: "Weiran Zeng"
+date: "2024-10-05"
+output: html_document
+---
+
+```{r setup, include=False}
+library(readr)
+ames_data <- read_csv("Desktop/MAT 215/HW/Project2/ames.csv")
+head(ames_data)
+
+library(ggplot2)
+summary(ames_data$SalePrice)
+
+ggplot(ames_data, aes(x = SalePrice)) +
+  geom_histogram(binwidth = 10000, fill = "pink", color = "black") +
+  ggtitle("Distribution of SalePrice") +
+  xlab("Sale Price (in USD)") +
+  ylab("Frequency") +
+  theme_minimal()
+```
+The histogram illustrates a right-skewed distribution of SalePrice, where most houses are concentrated in the lower price range (around $150,000 to $200,000), with fewer high-priced properties. This skewness may suggest the need for a data transformation, such as a log transformation, to improve the performance of linear models.
+
+```{r}
+library(ggplot2)
+
+ggplot(ames_data, aes(x = Gr.Liv.Area, y = SalePrice)) +
+  geom_point(color = "blue") +
+  ggtitle("Scatterplot of SalePrice vs. Gr.Liv.Area") +
+  xlab("Above Ground Living Area (sq ft)") +
+  ylab("Sale Price (USD)") +
+  theme_minimal()
+```
+The scatterplot shows a strong positive correlation between Gr.Liv.Area (above-ground living area) and SalePrice, meaning that houses with larger living areas tend to have higher sale prices.  However, there are five points that appear to be outliers.  These points represent homes with very large living areas (greater than 4000 sq ft) but relatively lower sale prices compared to the trend, or homes with unusually high prices for their size.  These outliers likely do not follow the general pattern and could skew the results of a predictive model. I think it would be consider removing these points from the dataset to improve model accuracy.
+
+```{r}
+ames2 <- subset(ames_data, Gr.Liv.Area <= 4000)
+head(ames2)
+
+ggplot(ames2, aes(x = Gr.Liv.Area, y = SalePrice)) +
+  geom_point(color = "blue") +
+  ggtitle("Scatterplot of SalePrice vs. Gr.Liv.Area (Outliers Removed)") +
+  xlab("Above Ground Living Area (sq ft)") +
+  ylab("Sale Price (USD)") +
+  theme_minimal()
+```
+```{r}
+model <- lm(SalePrice ~ Gr.Liv.Area, data = ames2)
+summary(model)
+```
+The R-squared value: 0.5176. 
+An R-squared value of 0.5176 indicates that while Gr.Liv.Area explains a significant portion of the variance in house prices, nearly half of the variance remains unexplained by this model and other factors (such as neighborhood, overall condition, or other property features) likely play an important role in predicting house prices, and incorporating them might improve the model.
+
+
+#Find a categorical variable that could have an impact on sale price. 
+Neighborhood: The location of a house plays a key role in determining its price. More desirable neighborhoods, with better infrastructure or proximity to good schools and services, tend to command higher property prices. On the other hand, houses in less desirable areas may be priced lower due to fewer amenities or lower demand.
+```{r}
+library(ggplot2)
+ggplot(ames2, aes(x = Neighborhood, y = SalePrice)) +
+  geom_boxplot(fill = "grey") + 
+  ggtitle("SalePrice vs. Neighborhood") +
+  xlab("Neighborhood") +
+  ylab("Sale Price (USD)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  theme_minimal()
+```
+The boxplot shows clear variation in sale prices across different neighborhoods.  Some neighborhoods have consistently higher sale prices, indicating that location is a strong determinant of house value.  This pattern reinforces the importance of neighborhood desirability in the housing market, as homes in more desirable areas tend to command higher prices.
+
+```{r}
+model2 <- lm(SalePrice ~ Gr.Liv.Area + Neighborhood, data = ames2)
+summary(model2)
+```
+The new model, which includes both Gr.Liv.Area and Neighborhood, shows a lot improvement in the R-squared value compared to the previous model. This suggests that while Neighborhood does influence house prices, it is not as strong a predictor as Gr.Liv.Area. The improvement is not small, indicating that other variables might still play a significant role in determining SalePrice.
+
+
+House size and quality
+```{r}
+model1 <- lm(SalePrice ~ Gr.Liv.Area + Lot.Area + Overall.Qual, data = ames2)
+summary(model1)
+```
+In Ames housing data analysis, living area size (increasing sale price by about $56.25 per square foot) and overall quality (boosting sale price by approximately $33,470 per point) emerged as significant determinants of sale prices. Although lot area also impacts sale price, its effect is relatively minor, adding about $1.31 per square foot. With an R-Squared of 0.767, the model fits well yet has room for improvement. Incorporating additional variables like property age, renovations, or interaction effects could enhance its explanatory power and prediction accuracy.
+
+Model 2: Add an interaction term:
+```{r}
+model2 <- lm(SalePrice ~ Gr.Liv.Area * Overall.Qual + Lot.Area, data = ames2)
+summary(model2)
+```
+R-squared = 0.8155
+The interaction term is highly significant, meaning that larger homes with higher quality drive up prices more than just size or quality alone.
+R-squared improved to 0.815, showing that this model explains a greater portion of price variation (about 81.5%), indicating that the interaction between size and quality is important.
+The interaction term will reveal if the effect of house size on price varies depending on the quality. For example, large homes with higher quality may have a disproportionately higher price than large homes with lower quality.
+
+```{r}
+model_with_kitchen <- lm(SalePrice ~ Gr.Liv.Area * Overall.Qual + Lot.Area + Neighborhood + Kitchen.Qual, data = ames2)
+summary(model_with_kitchen)
+
+model_without_kitchen <- lm(SalePrice ~ Gr.Liv.Area * Overall.Qual + Lot.Area + Neighborhood, data = ames2)
+summary(model_without_kitchen)
+```
+The regression model summaries clearly demonstrate that including Kitchen. Qual significantly improves the model's ability to predict housing prices, with the R-Squared value increasing from 0.825 to 0.867 and the adjusted R- Squared from 0.821 to 0.863. The statistical significance of Kitchen. Qual's coefficients indicates a strong association between kitchen quality and sale prices, justifying its inclusion despite the slight increase in model complexity. Overall, the enhanced predictive accuracy and meaningful contribution to the model suggest that Kitchen. Qual is a critical factor in housing price evaluations, particularly for analyses that emphasize the importance of specific home features.
+
+Model 3: Add location (neighborhood) and other quality measures:
+```{r}
+model3 <- lm(SalePrice ~ Gr.Liv.Area * Overall.Qual + Lot.Area + Neighborhood + Kitchen.Qual, data = ames2)
+summary(model3)
+```
+Neighborhood: Location has a major impact on price, with more desirable neighborhoods contributing to higher prices. Different neighborhoods show varying significance.
+Kitchen.Qual: Kitchen quality also plays a role, with higher quality kitchens increasing sale prices significantly.
+Neighborhood often has a significant impact on house prices, with more desirable locations commanding higher prices. Adding this variable will help capture location-based price differences.
+The R-squared for this model jumped to 0.868, meaning that 86.8% of the variability in sale price is explained, making it a highly effective model.
+Including another quality measure, such as Kitchen.Qual, reflects the fact that specific areas of the house, like the kitchen, can have an outsized impact on pricing.
+
+
+Model 3 is the best choice because it offers a high R-squared value while maintaining a reasonable number of important predictors.  It includes key variables that reflect both the size and quality of the house, along with location-specific factors, which makes it both accurate and practical for interpreting house prices. The inclusion of interaction terms helps capture the nuanced relationship between house size and quality, making it a well-rounded model for predicting house prices in the Ames dataset.
+
