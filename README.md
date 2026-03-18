@@ -1,17 +1,37 @@
-# R Statistical Modeling
+# Statistical Modeling and Analysis in R
 
-This project demonstrates statistical modeling using R.
+## Overview
+This project applies statistical modeling techniques in R to analyze data and generate meaningful insights.
 
-The analysis explores relationships between variables using statistical
-methods and data visualization.
+## Purpose
+The goal of this project is to demonstrate how statistical models can be used to understand data patterns and support data-driven decision-making.
 
-## Tools
+## Features
+- Data preprocessing and cleaning
+- Statistical modeling
+- Analytical interpretation
+- Data visualization (optional)
+- Insight generation
 
+## Tech Stack
 - R
-- R Markdown
 - Statistical Modeling
-- Data Visualization
+- Data Analysis
 
-## Author
+## What I Learned
+- Building and interpreting statistical models
+- Understanding relationships within data
+- Applying analytical techniques to real-world datasets
+- Communicating results effectively
 
-Weiran Zeng
+## Use Case
+This type of modeling can be used for:
+- Business forecasting
+- Data-driven decision making
+- Trend analysis
+- Performance evaluation
+
+## Future Improvements
+- Add machine learning models
+- Improve prediction accuracy
+- Integrate with automated data pipelines
